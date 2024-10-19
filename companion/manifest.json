@@ -1,0 +1,26 @@
+{
+	"id": "nohassleav-videowallprocessor",
+	"name": "nohassleav-videowallprocessor",
+	"shortname": "nohassleav-vidwallproc",
+	"description": "Control NoHassleAV videowall processors over a Telnet connection",
+	"version": "1.0.0",
+	"license": "MIT",
+	"repository": "git+https://github.com/bitfocus/companion-module-nohassleav-videowallprocessor.git",
+	"bugs": "https://github.com/bitfocus/companion-module-nohassleav-videowallprocessor/issues",
+	"maintainers": [
+		{
+			"name": "Leon Reucher",
+			"email": "leon.reucher@ultimate-technology.de"
+		}
+	],
+	"legacyIds": [],
+	"runtime": {
+		"type": "node18",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.0",
+		"entrypoint": "../index.js"
+	},
+	"manufacturer": "HDP",
+	"products": ["MXB44VW"],
+	"keywords": []
+}
