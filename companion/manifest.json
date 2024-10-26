@@ -15,12 +15,12 @@
 	],
 	"legacyIds": [],
 	"runtime": {
-		"type": "node18",
+		"type": "node22",
 		"api": "nodejs-ipc",
 		"apiVersion": "0.0.0",
 		"entrypoint": "../index.js"
 	},
-	"manufacturer": "HDP",
-	"products": ["MXB44VW"],
+	"manufacturer": "NoHassleAV",
+	"products": ["HDP MXB44VW", "Video Wall Processor 4x4"],
 	"keywords": []
 }
