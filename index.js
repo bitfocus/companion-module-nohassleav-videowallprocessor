@@ -11,6 +11,7 @@ import net from 'net'
 class HDMIVideoWallProcessor extends InstanceBase {
 	async init(config) {
 		this.config = config
+		this.messageBuffer = ''
 
 		this.setActionDefinitions(getActionDefinitions(this))
 		this.setFeedbackDefinitions(getFeedbackDefinitions(this))
@@ -561,41 +562,58 @@ class HDMIVideoWallProcessor extends InstanceBase {
 			}
 		}
 
-		const messages = data.split(/\r/)
+		if (!this.messageBuffer) {
+			this.messageBuffer = ''
+		}
 
-		messages.forEach((message) => {
-			if (message.trim() === '') return
+		this.messageBuffer += data
 
-			for (const patternKey in regexPatterns) {
-				matchAndSetVariable(patternKey, message)
-			}
+		const MAX_BUFFER_SIZE = 1024
+		if (this.messageBuffer.length > MAX_BUFFER_SIZE) {
+			this.log('warn', 'Message buffer overflow. Clearing buffer.')
+			this.messageBuffer = ''
+			return
+		}
 
-			if (message.match(regexPatterns.outputInputSource) || message.match(regexPatterns.inputOutputTarget)) {
-				this.checkFeedbacks('output_at_input')
-			}
-			if (message.match(regexPatterns.outputExtAudioSource)) {
-				this.checkFeedbacks('output_at_audio_input')
-			}
-			if (message.match(regexPatterns.panelLock)) {
-				this.checkFeedbacks('panel_lock')
-			}
-			if (message.match(regexPatterns.outputStream)) {
-				this.checkFeedbacks('output_streaming')
-			}
-			if (message.match(regexPatterns.devicePower)) {
-				this.checkFeedbacks('device_power')
-			}
-			if (message.match(regexPatterns.deviceBeep)) {
-				this.checkFeedbacks('device_beep')
-			}
-			if (message.match(regexPatterns.activePreset)) {
-				this.getStatus()
-			}
-			if (message.match(regexPatterns.telnetConnected)) {
-				this.log('info', 'Telnet connection successfull - retreiving status.')
-				this.getStatus()
-			}
-		})
+		let messages = this.messageBuffer.split(/\r/)
+
+		if (messages.length > 1) {
+			const completeMessages = messages.slice(0, -1)
+			completeMessages.forEach((message) => {
+				if (message.trim() === '') return
+
+				for (const patternKey in regexPatterns) {
+					matchAndSetVariable(patternKey, message)
+				}
+
+				if (message.match(regexPatterns.outputInputSource) || message.match(regexPatterns.inputOutputTarget)) {
+					this.checkFeedbacks('output_at_input')
+				}
+				if (message.match(regexPatterns.outputExtAudioSource)) {
+					this.checkFeedbacks('output_at_audio_input')
+				}
+				if (message.match(regexPatterns.panelLock)) {
+					this.checkFeedbacks('panel_lock')
+				}
+				if (message.match(regexPatterns.outputStream)) {
+					this.checkFeedbacks('output_streaming')
+				}
+				if (message.match(regexPatterns.devicePower)) {
+					this.checkFeedbacks('device_power')
+				}
+				if (message.match(regexPatterns.deviceBeep)) {
+					this.checkFeedbacks('device_beep')
+				}
+				if (message.match(regexPatterns.activePreset)) {
+					this.getStatus()
+				}
+				if (message.match(regexPatterns.telnetConnected)) {
+					this.log('info', 'Telnet connection successful - retrieving status.')
+					this.getStatus()
+				}
+			})
+		}
+		this.messageBuffer = messages[messages.length - 1].trim()
 	}
 
 	async configUpdated(config) {
