@@ -11,6 +11,7 @@ import net from 'net'
 class HDMIVideoWallProcessor extends InstanceBase {
 	async init(config) {
 		this.config = config
+		this.messageBuffer = ''
 
 		this.setActionDefinitions(getActionDefinitions(this))
 		this.setFeedbackDefinitions(getFeedbackDefinitions(this))
@@ -561,7 +562,19 @@ class HDMIVideoWallProcessor extends InstanceBase {
 			}
 		}
 
-		const messages = data.split(/\r/)
+		if (!this.messageBuffer) {
+			this.messageBuffer = ''
+		}
+
+		this.messageBuffer += data
+
+		const messages = this.messageBuffer.split(/\r/)
+
+		if (!this.messageBuffer.endsWith('\r')) {
+			this.messageBuffer = messages.pop()
+		} else {
+			this.messageBuffer = ''
+		}
 
 		messages.forEach((message) => {
 			if (message.trim() === '') return
